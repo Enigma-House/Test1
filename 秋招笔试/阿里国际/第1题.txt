@@ -1,0 +1,57 @@
+#include <iostream>
+#include <vector>
+#include <set>
+#include <unordered_set>
+
+using namespace std;
+
+int main() {
+    int n, m;
+    cin >> n; // 问题数量
+    cin >> m; // 回答数量
+
+    vector<unordered_set<int>> answers(m);
+    for (int i = 0; i < m; ++i) {
+        int k;
+        cin >> k; // 这个回答能解决的问题数量
+        unordered_set<int> answer;
+        for (int j = 0; j < k; ++j) {
+            int question;
+            cin >> question;
+            answer.insert(question);
+        }
+        answers[i] = move(answer);
+    }
+
+    unordered_set<int> coveredQuestions;
+    int selectedAnswers = 0;
+
+    while (coveredQuestions.size() < n) {
+        int maxCovered = 0;
+        int bestAnswer = -1;
+
+        for (int i = 0; i < m; ++i) {
+            if (answers[i].empty()) continue; // 如果这个答案已经被选中了，跳过它
+
+            unordered_set<int> newCovered(answers[i]);
+            for (auto it = coveredQuestions.begin(); it != coveredQuestions.end(); ++it) {
+                newCovered.erase(*it); // 移除已经覆盖的问题
+            }
+
+            if (newCovered.size() > maxCovered) {
+                maxCovered = newCovered.size();
+                bestAnswer = i;
+            }
+        }
+
+        if (bestAnswer == -1) break; // 无法覆盖更多问题
+
+        coveredQuestions.insert(answers[bestAnswer].begin(), answers[bestAnswer].end());
+        answers.erase(answers.begin() + bestAnswer);
+        selectedAnswers++;
+    }
+
+    cout << selectedAnswers << endl;
+
+    return 0;
+}
